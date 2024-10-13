@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"net/http"
 	"text/template"
@@ -35,9 +36,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func createSnippet(w http.ResponseWriter, r *http.Request) {
-	// Используем r.Method для проверки, использует ли запрос метод POST или нет. Обратите внимание,
-	// что http.MethodPost является строкой и содержит текст "POST".
+func writeInDb(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	if r.Method != http.MethodPost {
 		// Если это не так, то вызывается метод w.WriteHeader() для возвращения статус-кода 405
 		// и вызывается метод w.Write() для возвращения тела-ответа с текстом "Метод запрещен".
@@ -48,5 +47,13 @@ func createSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(r.FormValue("name")))
+	_, err := db.Exec(
+		`INSERT INTO users (name) VALUES ($1)`,
+		r.FormValue("name"),
+	)
+
+	if err != nil {
+		log.Println(err.Error())
+		http.Error(w, "Unable to execute the query", http.StatusInternalServerError)
+	}
 }
