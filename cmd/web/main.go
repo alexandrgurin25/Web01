@@ -23,7 +23,10 @@ func main() {
 	// функцию "home" регистрируется как обработчик для URL-шаблона "/".
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", home)
-	mux.HandleFunc("/login", login)
+	mux.HandleFunc("/login",
+		func(w http.ResponseWriter, r *http.Request) {
+			login(w, r, db)
+		})
 	mux.HandleFunc("/submit",
 		func(w http.ResponseWriter, r *http.Request) {
 			writeInDb(w, r, db)
