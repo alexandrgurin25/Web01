@@ -79,7 +79,7 @@ func home(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 			_, err = db.Exec(`INSERT INTO questions (login, question, answer) VALUES ($1, $2, $3)`, claims.Username, question, responseContent)
 
 		}
-		
+
 		if err != nil {
 			log.Println("Ошибка при выполнении запроса:", err)
 			http.Error(w, "Не удалось выполнить запрос", http.StatusInternalServerError)

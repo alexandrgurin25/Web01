@@ -5,15 +5,127 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Пример формы</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        input[type="submit"] {
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #4cae4c;
+        }
+
+        .response {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+        }
+
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            overflow: auto;
+        }
+
+        code {
+            font-family: monospace;
+        }
+    </style>
 </head>
 
 <body>
-    <form action="/submit" method="post">
-        <label for="question">Введите Ваш вопрос</label>
-        <input type="text" id="question" name="question" required>
+    <div class="container">
+        <h1>Задайте вопрос</h1>
+        <form id="questionForm">
+            <label for="question">Введите Ваш вопрос</label>
+            <input type="text" id="question" name="question" required>
+            <input type="submit" value="Отправить">
+        </form>
+        <div class="response" id="response" style="display: none;"></div>
+    </div>
 
-        <input type="submit" value="Отправить">
-    </form>
+    <script>
+        document.getElementById('questionForm').addEventListener('submit', function (event) {
+            event.preventDefault(); // Предотвращаем отправку формы
+
+            const question = document.getElementById('question').value;
+
+            // Отправляем AJAX-запрос на сервер
+            fetch('/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    'question': question
+                })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Ошибка при получении ответа от сервера');
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    // Проверяем, является ли ответ кодом или текстом
+                    const responseDiv = document.getElementById('response');
+                    if (data.startsWith('```') && data.endsWith('```')) {
+                        // Если ответ начинается и заканчивается на ```, считаем его кодом
+                        const codeContent = data.slice(3, -3); // Убираем ```
+
+                        responseDiv.innerHTML = `<pre><code>${codeContent}</code></pre>`;
+                    } else {
+                        // В противном случае считаем его текстом
+                        responseDiv.textContent = data;
+                    }
+                    responseDiv.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                });
+        });
+    </script>
 </body>
 
 </html>
