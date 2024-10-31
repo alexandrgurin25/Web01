@@ -11,7 +11,6 @@ import (
 )
 
 func main() {
-	
 	password := os.Getenv("DB_PASSWORD") // Получаем пароль из переменной окружения
 	connStr := "user=postgres password=" + password + " dbname=postgres sslmode=disable"
 	// Подключение к базе данных
@@ -24,14 +23,13 @@ func main() {
 	// Используется функция http.NewServeMux() для инициализации нового рутера, затем
 	// функцию "home" регистрируется как обработчик для URL-шаблона "/".
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", home)
 	mux.HandleFunc("/login",
 		func(w http.ResponseWriter, r *http.Request) {
 			auth.Login(w, r, db)
 		})
-	mux.HandleFunc("/submit",
+	mux.HandleFunc("/",
 		func(w http.ResponseWriter, r *http.Request) {
-			writeInDb(w, r, db)
+			home(w, r, db)
 		})
 
 	// Используется функция http.ListenAndServe() для запуска нового веб-сервера.
