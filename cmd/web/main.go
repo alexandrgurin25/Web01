@@ -1,6 +1,7 @@
 package main
 
 import (
+	"AuthService/auth"
 	"database/sql"
 	"log"
 	"net/http"
@@ -10,22 +11,23 @@ import (
 )
 
 func main() {
-	// Подключение к базе данных
+	
 	password := os.Getenv("DB_PASSWORD") // Получаем пароль из переменной окружения
 	connStr := "user=postgres password=" + password + " dbname=postgres sslmode=disable"
-
+	// Подключение к базе данных
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
+
 	// Используется функция http.NewServeMux() для инициализации нового рутера, затем
 	// функцию "home" регистрируется как обработчик для URL-шаблона "/".
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", home)
 	mux.HandleFunc("/login",
 		func(w http.ResponseWriter, r *http.Request) {
-			login(w, r, db)
+			auth.Login(w, r, db)
 		})
 	mux.HandleFunc("/submit",
 		func(w http.ResponseWriter, r *http.Request) {
